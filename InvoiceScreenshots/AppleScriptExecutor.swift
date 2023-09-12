@@ -26,7 +26,7 @@ class AppleScriptExecutor {
     static func execute(clientName: String, invoiceNumber: String, completion: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.global(qos: .background).async {
             
-            guard let directoryURL = promptForDirectory() else {
+            guard let _ = promptForDirectory() else {
                 // Handle the case where the user didn't select a directory.
                 return
             }
