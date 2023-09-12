@@ -15,7 +15,6 @@
 		0B8DDD542AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD522AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld */; };
 		0B8DDD5C2AB0CEF300C2F2A3 /* AppleScriptExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD5B2AB0CEF300C2F2A3 /* AppleScriptExecutor.swift */; };
 		0B8DDD5E2AB0F23600C2F2A3 /* TimerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */; };
-		0B8DDD602AB0F25000C2F2A3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD5F2AB0F25000C2F2A3 /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,7 +28,6 @@
 		0B8DDD552AB0C4EE00C2F2A3 /* InvoiceScreenshots.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InvoiceScreenshots.entitlements; sourceTree = "<group>"; };
 		0B8DDD5B2AB0CEF300C2F2A3 /* AppleScriptExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleScriptExecutor.swift; sourceTree = "<group>"; };
 		0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerController.swift; sourceTree = "<group>"; };
-		0B8DDD5F2AB0F25000C2F2A3 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +60,6 @@
 		0B8DDD462AB0C4EB00C2F2A3 /* InvoiceScreenshots */ = {
 			isa = PBXGroup;
 			children = (
-				0B8DDD5F2AB0F25000C2F2A3 /* ViewController.swift */,
 				0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */,
 				0B8DDD5B2AB0CEF300C2F2A3 /* AppleScriptExecutor.swift */,
 				0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */,
@@ -158,7 +155,6 @@
 				0B8DDD542AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld in Sources */,
 				0B8DDD4A2AB0C4EB00C2F2A3 /* ContentView.swift in Sources */,
 				0B8DDD5C2AB0CEF300C2F2A3 /* AppleScriptExecutor.swift in Sources */,
-				0B8DDD602AB0F25000C2F2A3 /* ViewController.swift in Sources */,
 				0B8DDD482AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift in Sources */,
 				0B8DDD5E2AB0F23600C2F2A3 /* TimerController.swift in Sources */,
 			);
