@@ -3,6 +3,9 @@ import Cocoa
 
 class AppleScriptExecutor {
     
+    private static var isTaskRunning: Bool = false
+    static var runningProcess: Process?
+    
     static func promptForDirectory() -> URL? {
         var resultURL: URL? = nil
         DispatchQueue.main.sync {
@@ -22,8 +25,7 @@ class AppleScriptExecutor {
         return resultURL
     }
 
-
-    static func execute(clientName: String, invoiceNumber: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    static func execute(clientName: String, invoiceNumber: String, includeSound: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.global(qos: .background).async {
             
             guard let _ = promptForDirectory() else {
@@ -32,18 +34,25 @@ class AppleScriptExecutor {
             }
             
             let dateResult = shell("date +'%m%d%Y'").trimmingCharacters(in: .whitespacesAndNewlines)
-            let dFolder = "/Users/joeshakely/Documents/\(clientName)/ScreenCaptures/\(invoiceNumber)/\(dateResult)/"
+            let dFolder = "/Users/\(NSUserName())/Documents/\(clientName)/ScreenCaptures/\(invoiceNumber)/\(dateResult)/"
             
             _ = shell("mkdir -p '\(dFolder)'")
             
+            isTaskRunning = true
+            
             for i in 0..<10000 {
+                if isTaskRunning == false {
+                    break
+                }
+                
                 if i == 0 {
                     sleep(5)
                 }
                 let timestamp = shell("date +'%H%M%S'").trimmingCharacters(in: .whitespacesAndNewlines)
                 let screenshotName = "Screenshots-\(dateResult)_\(timestamp)_\(i).png"
+                let soundFlag = includeSound ? "" : "-x"
                 let fullPath = dFolder + screenshotName
-                _ = shell("screencapture -D1 -R 50,130,3000,1930 '\(fullPath)'")
+                _ = shell("screencapture \(soundFlag) -D1 -R 50,130,3000,1930 '\(fullPath)'")
                 sleep(600)  // Wait for 10 minutes
             }
             
@@ -55,7 +64,9 @@ class AppleScriptExecutor {
     private static func shell(_ command: String) -> String {
         let task = Process()
         let pipe = Pipe()
-
+        
+        runningProcess = task
+        
         task.standardOutput = pipe
         task.arguments = ["-c", command]
         task.launchPath = "/bin/bash"
@@ -64,7 +75,12 @@ class AppleScriptExecutor {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
 
-        task.waitUntilExit()
+//        task.waitUntilExit()
         return output ?? ""
+    }
+    
+    static func terminateCurrentProcess() {
+        runningProcess?.interrupt()  // sends an interrupt signal
+        runningProcess?.terminate()  // sends a terminate signal
     }
 }

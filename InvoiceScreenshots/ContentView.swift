@@ -13,6 +13,8 @@ struct ContentView: View {
     @State private var clientName: String = "Meissner"
     @State private var invoiceNumber: String = "Invoice2"
     @State private var isRunning: Bool = false
+    @State private var includeScreenshotSound: Bool = true
+
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -40,13 +42,19 @@ struct ContentView: View {
             }
             .padding()
             .disabled(!isRunning)
+            
+            Toggle(isOn: $includeScreenshotSound) {
+                Text("Include Screenshot Sound")
+            }
+            .padding()
+
         }
         .padding()
     }
 
     func executeScript() {
         isRunning = true
-        AppleScriptExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber) { result in
+        AppleScriptExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeScreenshotSound) { result in
             DispatchQueue.main.async {
                 self.isRunning = false
                 switch result {
@@ -60,9 +68,8 @@ struct ContentView: View {
     }
 
     func cancelProcess() {
-        // This is where you'd put the logic to terminate the process, if it's possible
-        // For now, let's just set isRunning to false for the sake of this example.
         isRunning = false
+        AppleScriptExecutor.terminateCurrentProcess()
     }
 }
 
