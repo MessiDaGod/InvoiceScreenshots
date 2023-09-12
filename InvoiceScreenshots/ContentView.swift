@@ -39,9 +39,9 @@ struct ContentView: View {
         AppleScriptExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber) { result in
             switch result {
             case .success:
-                print("AppleScript executed successfully!")
+                print("Success!")
             case .failure(let error):
-                print("Error executing AppleScript: \(error)")
+                print("Error:", error)
             }
         }
     }
