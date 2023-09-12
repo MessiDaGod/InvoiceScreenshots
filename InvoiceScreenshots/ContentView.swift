@@ -14,7 +14,15 @@ struct ContentView: View {
     @State private var invoiceNumber: String = "Invoice2"
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
+    @State private var remainingSeconds: Int = 600
 
+    var formattedTime: String {
+        let minutes = remainingSeconds / 60
+        let seconds = remainingSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -30,6 +38,15 @@ struct ContentView: View {
             TextField("Enter Invoice Number", text: $invoiceNumber)
                 .padding()
                 .border(Color.gray)
+            
+            Text(formattedTime)
+                .onReceive(timer) { _ in
+                    if self.remainingSeconds > 0 {
+                        self.remainingSeconds -= 1
+                    } else {
+                        self.remainingSeconds = 600
+                    }
+                }
 
             Button(action: executeScript) {
                 Text("Execute Script")
@@ -50,6 +67,18 @@ struct ContentView: View {
 
         }
         .padding()
+        .onReceive(timer) { _ in
+            if self.isRunning == false {
+                self.remainingSeconds = 600
+            }
+            else if self.isRunning == true {
+                if self.remainingSeconds > 0 {
+                    self.remainingSeconds -= 1
+                } else {
+                    self.remainingSeconds = 600
+                }
+            }
+        }
     }
 
     func executeScript() {
@@ -69,6 +98,7 @@ struct ContentView: View {
 
     func cancelProcess() {
         isRunning = false
+        self.remainingSeconds = 600
         AppleScriptExecutor.terminateCurrentProcess()
     }
 }

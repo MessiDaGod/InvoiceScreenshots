@@ -33,6 +33,13 @@ class AppleScriptExecutor {
                 return
             }
             
+            if let iconSource = NSImage(named: "AppIcon") {
+                print(iconSource)
+            }
+            if let iconImage = NSApp.applicationIconImage {
+                print(iconImage)
+            }
+            
             let dateResult = shell("date +'%m%d%Y'").trimmingCharacters(in: .whitespacesAndNewlines)
             let dFolder = "/Users/\(NSUserName())/Documents/\(clientName)/ScreenCaptures/\(invoiceNumber)/\(dateResult)/"
             
