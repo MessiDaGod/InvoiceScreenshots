@@ -32,11 +32,7 @@ class AppleScriptExecutor {
                 // Handle the case where the user didn't select a directory.
                 return
             }
-            
-            if let iconSource = NSImage(named: "AppIcon") {
-                print(iconSource)
-            }
-            
+
             let dateResult = shell("date +'%m%d%Y'").trimmingCharacters(in: .whitespacesAndNewlines)
             let dFolder = "/Users/\(NSUserName())/Documents/\(clientName)/ScreenCaptures/\(invoiceNumber)/\(dateResult)/"
             
