@@ -7,24 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B4485872AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0B4485852AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld */; };
 		0B8DDD482AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */; };
 		0B8DDD4A2AB0C4EB00C2F2A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD492AB0C4EB00C2F2A3 /* ContentView.swift */; };
 		0B8DDD4C2AB0C4EE00C2F2A3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B8DDD4B2AB0C4EE00C2F2A3 /* Assets.xcassets */; };
 		0B8DDD4F2AB0C4EE00C2F2A3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B8DDD4E2AB0C4EE00C2F2A3 /* Preview Assets.xcassets */; };
 		0B8DDD512AB0C4EE00C2F2A3 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD502AB0C4EE00C2F2A3 /* Persistence.swift */; };
-		0B8DDD542AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD522AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld */; };
 		0B8DDD5C2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD5B2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift */; };
 		0B8DDD5E2AB0F23600C2F2A3 /* TimerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B4485862AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = InvoiceScreenshots.xcdatamodel; sourceTree = "<group>"; };
 		0B8DDD442AB0C4EB00C2F2A3 /* InvoiceScreenshots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InvoiceScreenshots.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScreenshotsApp.swift; sourceTree = "<group>"; };
 		0B8DDD492AB0C4EB00C2F2A3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0B8DDD4B2AB0C4EE00C2F2A3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B8DDD4E2AB0C4EE00C2F2A3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0B8DDD502AB0C4EE00C2F2A3 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		0B8DDD532AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = InvoiceScreenshots.xcdatamodel; sourceTree = "<group>"; };
 		0B8DDD552AB0C4EE00C2F2A3 /* InvoiceScreenshots.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InvoiceScreenshots.entitlements; sourceTree = "<group>"; };
 		0B8DDD5B2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenshotTerminalExecutor.swift; sourceTree = "<group>"; };
 		0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerController.swift; sourceTree = "<group>"; };
@@ -65,9 +65,9 @@
 				0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */,
 				0B8DDD492AB0C4EB00C2F2A3 /* ContentView.swift */,
 				0B8DDD4B2AB0C4EE00C2F2A3 /* Assets.xcassets */,
+				0B4485852AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld */,
 				0B8DDD502AB0C4EE00C2F2A3 /* Persistence.swift */,
 				0B8DDD552AB0C4EE00C2F2A3 /* InvoiceScreenshots.entitlements */,
-				0B8DDD522AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld */,
 				0B8DDD4D2AB0C4EE00C2F2A3 /* Preview Content */,
 			);
 			path = InvoiceScreenshots;
@@ -152,11 +152,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B8DDD512AB0C4EE00C2F2A3 /* Persistence.swift in Sources */,
-				0B8DDD542AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld in Sources */,
 				0B8DDD4A2AB0C4EB00C2F2A3 /* ContentView.swift in Sources */,
 				0B8DDD5C2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift in Sources */,
 				0B8DDD482AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift in Sources */,
 				0B8DDD5E2AB0F23600C2F2A3 /* TimerController.swift in Sources */,
+				0B4485872AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,12 +362,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		0B8DDD522AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodeld */ = {
+		0B4485852AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				0B8DDD532AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodel */,
+				0B4485862AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodel */,
 			);
-			currentVersion = 0B8DDD532AB0C4EE00C2F2A3 /* InvoiceScreenshots.xcdatamodel */;
+			currentVersion = 0B4485862AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodel */;
 			path = InvoiceScreenshots.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

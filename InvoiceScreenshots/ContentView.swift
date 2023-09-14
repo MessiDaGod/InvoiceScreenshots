@@ -8,7 +8,6 @@
 import SwiftUI
 import CoreData
 
-
 class TimerViewModel: ObservableObject {
     var timerController = TimerController()
     
@@ -49,47 +48,100 @@ class TimerViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var clientName: String = "Meissner"
-    @State private var invoiceNumber: String = "Invoice2"
+    @State private var clientName: String = ""
+    @State private var invoiceNumber: String = ""
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
     @State private var remainingSeconds: Int = 600
     @State private var formattedTime: String = "10:00"
     @ObservedObject var viewModel = TimerViewModel()
-    let clients = ["Meissner", "Vic.ai"]
-    
+    @State private var newClientName: String = ""
+    @State private var showNewClientField: Bool = false
+    @State private var showDeleteConfirmation: Bool = false
+
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var timerController = TimerController()
     
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
-    
+    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)]) private var clients: FetchedResults<InvoiceScreenshots.Client>
+        
     // Initial setup: Load values from UserDefaults
     init() {
         if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
             _clientName = State(initialValue: savedClientName)
         }
-        
+        else if let firstClient = clients.first {
+            _clientName = State(initialValue: firstClient.name ?? "")
+        }
+
         if let savedInvoiceNumber = UserDefaults.standard.string(forKey: "invoiceNumber") {
             _invoiceNumber = State(initialValue: savedInvoiceNumber)
         }
     }
-
     
     var body: some View {
         VStack(spacing: 20) {
+            // Add New Client Button
+            Button(action: {
+                self.showNewClientField.toggle()
+            }) {
+                HStack {
+                    Text("Add New Client")
+                        .foregroundColor(Color.white)
+                }
+                .buttonStyle(.bordered)
+                .tint(.pink)
+                .padding()
+            }
+            
+            // Delete all Clients
+            Button(action: {
+                self.showDeleteConfirmation = true
+            }) {
+                HStack {
+                    Text("Delete All Clients")
+                    .foregroundColor(Color.white)
+                }
+                .padding()
+            }
+            .alert(isPresented: $showDeleteConfirmation) {
+                Alert(title: Text("Delete All Clients?"),
+                      message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
+                      primaryButton: .destructive(Text("Delete")) {
+                          deleteAllClients()
+                      },
+                      secondaryButton: .cancel()
+                )
+            }
+
+            
+            // New Client Name TextField
+            if showNewClientField {
+                TextField("New Client Name", text: $newClientName)
+                    .padding()
+                    .border(Color.gray)
+
+                Button(action: {
+                    addNewClient()
+                    newClientName = "" // Clear the field after adding
+                    showNewClientField = false // Hide the TextField after saving
+                }) {
+                    Text("Save Client")
+                }
+                .padding()
+            }
+
+            
             // Picker to select a client
             Picker("Select Client", selection: $clientName) {
-                ForEach(clients, id: \.self) {
-                    Text($0)
+                ForEach(clients, id: \.self) { client in
+                    Text(client.name ?? "").tag(client.name ?? "")
                 }
             }
             .pickerStyle(MenuPickerStyle())
             .padding()
             .border(Color.gray)
+
 
             TextField("Enter Invoice Number", text: $invoiceNumber)
                 .padding()
@@ -122,6 +174,59 @@ struct ContentView: View {
 
         }
         .padding()
+        .onAppear {
+            validateClientSelection()
+        }
+    }
+    
+    func validateClientSelection() {
+        if !clients.map({ $0.name ?? "" }).contains(clientName), let firstClient = clients.first {
+            _clientName.wrappedValue = firstClient.name ?? ""
+        }
+    }
+    
+    func addNewClient() {
+        let client = Client(context: viewContext)
+        client.name = newClientName
+        print("Trying to save client with name: \(newClientName)")
+
+        do {
+            try viewContext.save()
+            print("Saved successfully!")
+            
+            // Fetch and print all clients to debug
+            let fetchRequest: NSFetchRequest<Client> = Client.fetchRequest()
+            let allClients = try viewContext.fetch(fetchRequest)
+            for client in allClients {
+                print("Client name:", client.name ?? "No name")
+            }
+        } catch {
+            print("Error saving new client: \(error)")
+        }
+    }
+
+    
+    func deleteAllClients() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Client.fetchRequest()
+        
+        do {
+            let fetchedClients = try viewContext.fetch(fetchRequest) as! [Client]
+            for client in fetchedClients {
+                viewContext.delete(client)
+            }
+            
+            try viewContext.save()
+            
+            // Reset clientName after deletion
+            if let firstClient = clients.first {
+                clientName = firstClient.name ?? ""
+            } else {
+                clientName = ""
+            }
+            
+        } catch {
+            print("Error deleting all clients: \(error)")
+        }
     }
 }
 
@@ -131,9 +236,3 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .medium
     return formatter
 }()
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-    }
-}
