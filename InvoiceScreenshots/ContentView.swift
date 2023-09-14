@@ -58,12 +58,14 @@ struct ContentView: View {
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
     @State private var showDeleteConfirmation: Bool = false
-
+    // For toggling the sidebar
+    @State private var isSidebarVisible: Bool = true
+    
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var timerController = TimerController()
     
-    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)]) private var clients: FetchedResults<InvoiceScreenshots.Client>
+    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<InvoiceScreenshots.Client>
         
     // Initial setup: Load values from UserDefaults
     init() {
@@ -73,111 +75,135 @@ struct ContentView: View {
         else if let firstClient = clients.first {
             _clientName = State(initialValue: firstClient.name ?? "")
         }
-
-        if let savedInvoiceNumber = UserDefaults.standard.string(forKey: "invoiceNumber") {
-            _invoiceNumber = State(initialValue: savedInvoiceNumber)
-        }
     }
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            // Add New Client Button
-            Button(action: {
-                self.showNewClientField.toggle()
-            }) {
-                HStack {
-                    Text("Add New Client")
-                        .foregroundColor(Color.white)
-                }
-                .buttonStyle(.bordered)
-                .tint(.pink)
-                .padding()
-            }
-            
-            // Delete all Clients
-            Button(action: {
-                self.showDeleteConfirmation = true
-            }) {
-                HStack {
-                    Text("Delete All Clients")
-                    .foregroundColor(Color.white)
-                }
-                .padding()
-            }
-            .alert(isPresented: $showDeleteConfirmation) {
-                Alert(title: Text("Delete All Clients?"),
-                      message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
-                      primaryButton: .destructive(Text("Delete")) {
-                          deleteAllClients()
-                      },
-                      secondaryButton: .cancel()
-                )
-            }
 
+    var body: some View {
+        NavigationView {
+            // Sidebar
+            VStack {
+                List {
+                    Button(action: {
+                        // Placeholder action for Add New Client
+                    }) {
+                        Text("Add New Client")
+                    }
+
+                    // Only show the Delete All Clients button if there are clients
+                    if !clients.isEmpty {
+                        Button(action: {
+                            self.showDeleteConfirmation = true
+                        }) {
+                            Text("Delete All Clients")
+                        }
+                    }
+                }
+                Spacer()
+            }
+            .frame(minWidth: 200, maxHeight: .infinity)
             
-            // New Client Name TextField
-            if showNewClientField {
-                TextField("New Client Name", text: $newClientName)
+            // Main content
+            VStack(spacing: 20) {
+                // Add New Client Button
+                Button(action: {
+                    self.showNewClientField.toggle()
+                }) {
+                    HStack {
+                        Text("Add New Client")
+                            .foregroundColor(Color.white)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.pink)
+                    .padding()
+                }
+                
+                // Delete all Clients
+                Button(action: {
+                    self.showDeleteConfirmation = true
+                }) {
+                    HStack {
+                        Text("Delete All Clients")
+                        .foregroundColor(Color.white)
+                    }
+                    .padding()
+                }
+                .alert(isPresented: $showDeleteConfirmation) {
+                    Alert(title: Text("Delete All Clients?"),
+                          message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
+                          primaryButton: .destructive(Text("Delete")) {
+                              deleteAllClients()
+                          },
+                          secondaryButton: .cancel()
+                    )
+                }
+
+                
+                // New Client Name TextField
+                if showNewClientField {
+                    TextField("New Client Name", text: $newClientName)
+                        .padding()
+                        .border(Color.gray)
+
+                    Button(action: {
+                        addNewClient()
+                        newClientName = "" // Clear the field after adding
+                        showNewClientField = false // Hide the TextField after saving
+                    }) {
+                        Text("Save Client")
+                    }
+                    .padding()
+                }
+
+                
+                // Only show the Picker if there are clients
+                if !clients.isEmpty {
+                    Picker("Select Client", selection: $clientName) {
+                        ForEach(clients, id: \.self) { client in
+                            Text(client.name ?? "").tag(client.name ?? "")
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
                     .padding()
                     .border(Color.gray)
+                }
+
+
+                TextField("Enter Invoice Number", text: $invoiceNumber)
+                    .padding()
+                    .border(Color.gray)
+                
+                Text(viewModel.formattedTime)
 
                 Button(action: {
-                    addNewClient()
-                    newClientName = "" // Clear the field after adding
-                    showNewClientField = false // Hide the TextField after saving
+                    // Save values to UserDefaults
+                    UserDefaults.standard.set(clientName, forKey: "clientName")
+                    UserDefaults.standard.set(invoiceNumber, forKey: "invoiceNumber")
+                    
+                    viewModel.executeScript(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeScreenshotSound)
                 }) {
-                    Text("Save Client")
+                    Text("Execute Script")
                 }
                 .padding()
-            }
+                .disabled(viewModel.isRunning)
 
-            
-            // Picker to select a client
-            Picker("Select Client", selection: $clientName) {
-                ForEach(clients, id: \.self) { client in
-                    Text(client.name ?? "").tag(client.name ?? "")
+                Button(action: viewModel.cancelProcess) {
+                    Text("Cancel")
                 }
-            }
-            .pickerStyle(MenuPickerStyle())
-            .padding()
-            .border(Color.gray)
-
-
-            TextField("Enter Invoice Number", text: $invoiceNumber)
                 .padding()
-                .border(Color.gray)
-            
-            Text(viewModel.formattedTime)
-
-            Button(action: {
-                // Save values to UserDefaults
-                UserDefaults.standard.set(clientName, forKey: "clientName")
-                UserDefaults.standard.set(invoiceNumber, forKey: "invoiceNumber")
+                .disabled(!viewModel.isRunning)
                 
-                viewModel.executeScript(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeScreenshotSound)
-            }) {
-                Text("Execute Script")
+                Toggle(isOn: $includeScreenshotSound) {
+                    Text("Include Screenshot Sound")
+                }
+                .padding()
             }
             .padding()
-            .disabled(viewModel.isRunning)
-
-            Button(action: viewModel.cancelProcess) {
-                Text("Cancel")
-            }
-            .padding()
-            .disabled(!viewModel.isRunning)
-            
-            Toggle(isOn: $includeScreenshotSound) {
-                Text("Include Screenshot Sound")
-            }
-            .padding()
-
         }
         .padding()
         .onAppear {
             validateClientSelection()
-        }
+        }        
     }
+
     
     func validateClientSelection() {
         if !clients.map({ $0.name ?? "" }).contains(clientName), let firstClient = clients.first {
@@ -188,22 +214,30 @@ struct ContentView: View {
     func addNewClient() {
         let client = Client(context: viewContext)
         client.name = newClientName
-        print("Trying to save client with name: \(newClientName)")
-
+        
         do {
             try viewContext.save()
             print("Saved successfully!")
-            
+          
+            // Set the clientName to the new client's name
+            clientName = newClientName
+
             // Fetch and print all clients to debug
             let fetchRequest: NSFetchRequest<Client> = Client.fetchRequest()
             let allClients = try viewContext.fetch(fetchRequest)
             for client in allClients {
                 print("Client name:", client.name ?? "No name")
             }
-        } catch {
-            print("Error saving new client: \(error)")
+        } catch let error as NSError {
+            if error.code == NSValidationMultipleErrorsError || error.code == NSValidationMultipleErrorsError {
+                print("Client with the same name already exists!")
+                viewContext.rollback() // This will undo the changes in the context
+            } else {
+                print("Error saving new client: \(error)")
+            }
         }
     }
+
 
     
     func deleteAllClients() {
@@ -236,3 +270,9 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .medium
     return formatter
 }()
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    }
+}
