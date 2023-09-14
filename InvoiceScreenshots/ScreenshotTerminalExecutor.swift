@@ -1,7 +1,7 @@
 import Foundation
 import Cocoa
 
-class AppleScriptExecutor {
+class ScreenshotTerminalExecutor {
     
     private static var isTaskRunning: Bool = false
     static var runningProcess: Process?

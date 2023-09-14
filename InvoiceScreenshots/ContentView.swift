@@ -25,7 +25,7 @@ class TimerViewModel: ObservableObject {
         isRunning = true
         timerController.startTimer()
         
-        AppleScriptExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeSound) { [weak self] result in
+        ScreenshotTerminalExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeSound) { [weak self] result in
             DispatchQueue.main.async {
                 self?.timerController.stopTimer()
                 self?.isRunning = false
@@ -42,7 +42,7 @@ class TimerViewModel: ObservableObject {
     func cancelProcess() {
         isRunning = false
         timerController.stopTimer()
-        AppleScriptExecutor.terminateCurrentProcess()
+        ScreenshotTerminalExecutor.terminateCurrentProcess()
     }
 }
 
@@ -56,6 +56,7 @@ struct ContentView: View {
     @State private var remainingSeconds: Int = 600
     @State private var formattedTime: String = "10:00"
     @ObservedObject var viewModel = TimerViewModel()
+    let clients = ["Meissner", "Vic.ai"]
     
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -66,11 +67,29 @@ struct ContentView: View {
         animation: .default)
     private var items: FetchedResults<Item>
     
+    // Initial setup: Load values from UserDefaults
+    init() {
+        if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
+            _clientName = State(initialValue: savedClientName)
+        }
+        
+        if let savedInvoiceNumber = UserDefaults.standard.string(forKey: "invoiceNumber") {
+            _invoiceNumber = State(initialValue: savedInvoiceNumber)
+        }
+    }
+
+    
     var body: some View {
         VStack(spacing: 20) {
-            TextField("Enter Client's Name", text: $clientName)
-                .padding()
-                .border(Color.gray)
+            // Picker to select a client
+            Picker("Select Client", selection: $clientName) {
+                ForEach(clients, id: \.self) {
+                    Text($0)
+                }
+            }
+            .pickerStyle(MenuPickerStyle())
+            .padding()
+            .border(Color.gray)
 
             TextField("Enter Invoice Number", text: $invoiceNumber)
                 .padding()
@@ -79,6 +98,10 @@ struct ContentView: View {
             Text(viewModel.formattedTime)
 
             Button(action: {
+                // Save values to UserDefaults
+                UserDefaults.standard.set(clientName, forKey: "clientName")
+                UserDefaults.standard.set(invoiceNumber, forKey: "invoiceNumber")
+                
                 viewModel.executeScript(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeScreenshotSound)
             }) {
                 Text("Execute Script")
