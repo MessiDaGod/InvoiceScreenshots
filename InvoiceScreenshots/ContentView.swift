@@ -49,7 +49,7 @@ class TimerViewModel: ObservableObject {
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var clientName: String = ""
-    @State private var invoiceNumber: String = ""
+    @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
     @State private var remainingSeconds: Int = 600
