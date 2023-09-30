@@ -17,7 +17,7 @@ class ScreenshotTerminalExecutor {
             openPanel.canCreateDirectories = true
             openPanel.allowsMultipleSelection = false
             openPanel.canChooseFiles = false
-
+            
             if openPanel.runModal() == .OK {
                 resultURL = openPanel.url
             }
@@ -25,7 +25,7 @@ class ScreenshotTerminalExecutor {
         return resultURL
     }
 
-    static func execute(clientName: String, invoiceNumber: String, includeSound: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
+    static func screenshotTerminalExecute(clientName: String, invoiceNumber: String, includeSound: Bool, completion: @escaping (Result<String, Error>) -> Void) {
         DispatchQueue.global(qos: .background).async {
             
             guard let _ = promptForDirectory() else {
@@ -53,6 +53,11 @@ class ScreenshotTerminalExecutor {
                 let soundFlag = includeSound ? "" : "-x"
                 let fullPath = dFolder + screenshotName
                 _ = shell("screencapture \(soundFlag) -D1 -R 50,130,3000,1930 '\(fullPath)'")
+                // Insert the screenshot into the database
+                let timestamp2 = Date().description // Current time as a string
+                DatabaseManager.shared.insertScreenshot(path: fullPath, timestamp: timestamp2)
+                completion(.success(fullPath))
+
                 sleep(600)  // Wait for 10 minutes
             }
             

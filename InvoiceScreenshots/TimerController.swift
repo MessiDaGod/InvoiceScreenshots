@@ -7,12 +7,14 @@
 
 import Foundation
 import AppKit
+ 
 
 class TimerController {
 
     var counter = 600
     var timer: Timer?
     var updateLabel: ((String) -> Void)?
+    var onScreenshotTaken: ((String, String) -> Void)?
 
     func startTimer() {
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateCounter), userInfo: nil, repeats: true)

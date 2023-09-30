@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import SwiftUIIntrospect
 
 class TimerViewModel: ObservableObject {
     var timerController = TimerController()
@@ -18,19 +19,24 @@ class TimerViewModel: ObservableObject {
         timerController.updateLabel = { [weak self] time in
             self?.formattedTime = time
         }
+        timerController.onScreenshotTaken = { screenshotPath, timestamp in
+            DatabaseManager.shared.insertScreenshot(path: screenshotPath, timestamp: timestamp)
+        }
     }
     
     func executeScript(clientName: String, invoiceNumber: String, includeSound: Bool) {
         isRunning = true
         timerController.startTimer()
         
-        ScreenshotTerminalExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeSound) { [weak self] result in
+        ScreenshotTerminalExecutor.screenshotTerminalExecute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeSound) { [weak self] result in
             DispatchQueue.main.async {
                 self?.timerController.stopTimer()
                 self?.isRunning = false
                 switch result {
-                case .success:
-                    print("Success!")
+                case .success(let screenshotPath):  // <-- This 'screenshotPath' is your 'fullPath'
+                    let timestamp = Date().description
+
+                    self?.timerController.onScreenshotTaken?(screenshotPath, timestamp)  // <-- Use it here
                 case .failure(let error):
                     print("Error:", error)
                 }
@@ -48,8 +54,8 @@ class TimerViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var clientName: String = ""
-    @State private var invoiceNumber: String = ""
+    @State private var clientName: String = "Vic.ai"
+    @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
     @State private var remainingSeconds: Int = 600
@@ -58,8 +64,9 @@ struct ContentView: View {
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
     @State private var showDeleteConfirmation: Bool = false
-    // For toggling the sidebar
     @State private var isSidebarVisible: Bool = true
+    @State private var isDarkMode: Bool = true
+
     
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -67,7 +74,7 @@ struct ContentView: View {
     
     @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<InvoiceScreenshots.Client>
         
-    // Initial setup: Load values from UserDefaults
+
     init() {
         if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
             _clientName = State(initialValue: savedClientName)
@@ -79,50 +86,92 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            // Sidebar
             VStack {
+                Button(action: {
+                    isDarkMode.toggle()
+                }) {
+                    Text(isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")
+                }
+                .padding()
                 List {
+                    // Add New Client Button
                     Button(action: {
-                        // Placeholder action for Add New Client
+                        self.showNewClientField.toggle()
                     }) {
-                        Text("Add New Client")
+                        HStack {
+                            Text("Add New Client")
+                                .foregroundColor(Color.black)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.pink)
+                        .padding()
                     }
 
                     // Only show the Delete All Clients button if there are clients
                     if !clients.isEmpty {
+                        // Delete all Clients
                         Button(action: {
                             self.showDeleteConfirmation = true
                         }) {
-                            Text("Delete All Clients")
+                            HStack {
+                                Text("Delete All Clients")
+                                .foregroundColor(Color.red)
+                            }
+                            .padding()
                         }
                     }
                 }
+#if os(iOS)
+                .listStyle(.sidebar)
+                .introspect(.list(style: .sidebar), on: .iOS(.v14, .v15)) {
+                    print(type(of: $0)) // UITableView
+                }
+                .introspect(.list(style: .sidebar), on: .iOS(.v16, .v17)) {
+                    print(type(of: $0)) // UICollectionView
+                }
+#endif
+#if os(macOS)
+                .listStyle(.sidebar)
+                .introspect(.list(style: .sidebar), on: .macOS(.v10_15, .v11, .v12, .v13, .v14)) {
+                    print(type(of: $0)) // NSTableView
+                }
+#endif
                 Spacer()
             }
             .frame(minWidth: 200, maxHeight: .infinity)
             
+            
             // Main content
             VStack(spacing: 20) {
-                // Add New Client Button
+                Button(action: {
+                    isDarkMode.toggle()
+                }) {
+                    Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                }
+                .padding()
                 Button(action: {
                     self.showNewClientField.toggle()
                 }) {
                     HStack {
                         Text("Add New Client")
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.black)
                     }
                     .buttonStyle(.bordered)
                     .tint(.pink)
                     .padding()
                 }
-                
+
+//
                 // Delete all Clients
                 Button(action: {
                     self.showDeleteConfirmation = true
                 }) {
                     HStack {
                         Text("Delete All Clients")
-                        .foregroundColor(Color.white)
+                        .foregroundColor(Color.red)
                     }
                     .padding()
                 }
@@ -135,8 +184,7 @@ struct ContentView: View {
                           secondaryButton: .cancel()
                     )
                 }
-
-                
+                            
                 // New Client Name TextField
                 if showNewClientField {
                     TextField("New Client Name", text: $newClientName)
@@ -198,17 +246,28 @@ struct ContentView: View {
             }
             .padding()
         }
+        .environment(\.colorScheme, isDarkMode ? .dark : .light)
         .padding()
         .onAppear {
             validateClientSelection()
         }        
     }
 
+
     
     func validateClientSelection() {
         if !clients.map({ $0.name ?? "" }).contains(clientName), let firstClient = clients.first {
             _clientName.wrappedValue = firstClient.name ?? ""
         }
+    }
+    
+    func fetchDirectoryData() {
+        // Here, you would ideally fetch the data about your directory.
+        // On iOS, you might use FileManager to access directories in the app's sandbox.
+        // Note: Direct access to any directory as in Node.js is not possible due to sandboxing.
+        
+        // For demonstration, let's just print something
+        print("Fetching directory data...")
     }
     
     func addNewClient() {
