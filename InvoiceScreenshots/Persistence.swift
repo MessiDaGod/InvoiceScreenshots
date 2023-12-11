@@ -15,7 +15,7 @@ struct PersistenceController {
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
             let newItem = InvoiceScreenshots.Client(context: viewContext)
-//            newItem.timestamp = Date()
+            // newItem.timestamp = Date()
             let newClient = InvoiceScreenshots.Client(context: viewContext)
             newClient.name = "Example Client"
             // Assign an id for the newClient if needed.
@@ -32,7 +32,7 @@ struct PersistenceController {
     let container: NSPersistentContainer
 
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "InvoiceScreenshots") // Make sure this matches the name of your Core Data model file (e.g., "InvoiceScreenshots").
+        container = NSPersistentContainer(name: "InvoiceScreenshots")
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }

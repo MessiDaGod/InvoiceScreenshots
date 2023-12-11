@@ -100,6 +100,7 @@ struct ContentView: View {
                 Spacer()
             }
             .frame(minWidth: 200, maxHeight: .infinity)
+            .colorScheme(.dark)
             
             // Main content
             VStack(spacing: 20) {
@@ -115,6 +116,7 @@ struct ContentView: View {
                     .tint(.pink)
                     .padding()
                 }
+                .colorScheme(.dark)
                 
                 // Delete all Clients
                 Button(action: {
@@ -197,11 +199,13 @@ struct ContentView: View {
                 .padding()
             }
             .padding()
+            .colorScheme(.dark)
         }
         .padding()
         .onAppear {
             validateClientSelection()
-        }        
+        }
+        .colorScheme(.dark)
     }
 
     
