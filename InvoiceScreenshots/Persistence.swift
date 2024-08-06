@@ -15,7 +15,7 @@ struct PersistenceController {
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
             let newItem = InvoiceScreenshots.Client(context: viewContext)
-//            newItem.timestamp = Date()
+ 
             let newClient = InvoiceScreenshots.Client(context: viewContext)
             newClient.name = "Example Client"
             // Assign an id for the newClient if needed.

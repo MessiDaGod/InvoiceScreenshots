@@ -40,6 +40,7 @@ class TimerViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.colorScheme) private var colorScheme
     @State private var clientName: String = ""
     @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
@@ -50,12 +51,10 @@ struct ContentView: View {
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
     @State private var showDeleteConfirmation: Bool = false
-    
-    var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    var timerController = TimerController()
+    var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
-    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<InvoiceScreenshots.Client>
+    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<Client>
         
     // Initial setup: Load values from UserDefaults
     init() {
@@ -74,6 +73,7 @@ struct ContentView: View {
                     // Placeholder action for Add New Client
                 }) {
                     Text("Add New Client")
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
 
                 // Only show the Delete All Clients button if there are clients
@@ -82,33 +82,47 @@ struct ContentView: View {
                         self.showDeleteConfirmation = true
                     }) {
                         Text("Delete All Clients")
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
                     }
                 }
             }
             .frame(minWidth: 200)
+            .background(colorScheme == .dark ? Color.black : Color.white)
             .alert(isPresented: $showDeleteConfirmation) {
                 Alert(title: Text("Delete All Clients?"),
                       message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
-                      primaryButton: .destructive(Text("Delete")) {
-                          deleteAllClients()
-                      },
+                      primaryButton: .destructive(Text("Delete")),
                       secondaryButton: .cancel()
                 )
             }
         } detail: {
             VStack(spacing: 20) {
+                // Light/Dark mode toggle button at the top
+                Button(action: toggleColorScheme) {
+                    ZStack {
+                        Circle()
+                            .fill(colorScheme == .dark ? Color.black : Color.white)
+                            .frame(width: 44, height: 44)
+                            .shadow(radius: 10)
+                        Image(systemName: colorScheme == .dark ? "sun.max.fill" : "moon.fill")
+                            .font(.title)
+                            .foregroundColor(colorScheme == .dark ? .yellow : .gray)
+                    }
+                }
+                .padding()
+
                 // Add New Client Button
                 Button(action: {
                     self.showNewClientField.toggle()
                 }) {
                     HStack {
                         Text("Add New Client")
-                            .foregroundColor(Color.white)
                     }
                     .buttonStyle(.bordered)
                     .tint(.pink)
                     .padding()
                 }
+                .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 // New Client Name TextField
                 if showNewClientField {
@@ -124,25 +138,30 @@ struct ContentView: View {
                         Text("Save Client")
                     }
                     .padding()
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
                 
                 // Only show the Picker if there are clients
                 if !clients.isEmpty {
                     Picker("Select Client", selection: $clientName) {
                         ForEach(clients, id: \.self) { client in
-                            Text(client.name ?? "").tag(client.name ?? "")
+                            Text(client.name ?? "")
+                                .tag(client.name ?? "")
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
                     .padding()
                     .border(Color.gray)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
 
                 TextField("Enter Invoice Number", text: $invoiceNumber)
                     .padding()
                     .border(Color.gray)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Text(viewModel.formattedTime)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
 
                 Button(action: {
                     // Save values to UserDefaults
@@ -155,22 +174,34 @@ struct ContentView: View {
                 }
                 .padding()
                 .disabled(viewModel.isRunning)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
 
                 Button(action: viewModel.cancelProcess) {
                     Text("Cancel")
                 }
                 .padding()
                 .disabled(!viewModel.isRunning)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Toggle(isOn: $includeScreenshotSound) {
                     Text("Include Screenshot Sound")
                 }
                 .padding()
+                .foregroundColor(colorScheme == .dark ? .white : .black)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
+            .background(colorScheme == .dark ? Color.black : Color.white)
+            .onAppear {
+                validateClientSelection()
+            }
         }
-        .onAppear {
-            validateClientSelection()
+        .background(colorScheme == .dark ? Color.black : Color.white) // Ensure the entire background is the correct color
+    }
+
+    func toggleColorScheme() {
+        if let window = NSApp.windows.first {
+            window.appearance = NSAppearance(named: colorScheme == .dark ? .aqua : .darkAqua)
         }
     }
 
