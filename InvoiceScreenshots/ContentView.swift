@@ -40,7 +40,8 @@ class TimerViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var environmentColorScheme
+    @State private var colorScheme: ColorScheme = .light // Default to light mode
     @State private var clientName: String = ""
     @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
@@ -56,16 +57,6 @@ struct ContentView: View {
     
     @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<Client>
         
-    // Initial setup: Load values from UserDefaults
-    init() {
-        if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
-            _clientName = State(initialValue: savedClientName)
-        }
-        else if let firstClient = clients.first {
-            _clientName = State(initialValue: firstClient.name ?? "")
-        }
-    }
-
     var body: some View {
         NavigationSplitView {
             List {
@@ -87,7 +78,7 @@ struct ContentView: View {
                 }
             }
             .frame(minWidth: 200)
-            .background(colorScheme == .dark ? Color.black : Color.white)
+            .background(Color.clear)
             .alert(isPresented: $showDeleteConfirmation) {
                 Alert(title: Text("Delete All Clients?"),
                       message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
@@ -101,7 +92,7 @@ struct ContentView: View {
                 Button(action: toggleColorScheme) {
                     ZStack {
                         Circle()
-                            .fill(colorScheme == .dark ? Color.black : Color.white)
+                            .fill(Color.clear)
                             .frame(width: 44, height: 44)
                             .shadow(radius: 10)
                         Image(systemName: colorScheme == .dark ? "sun.max.fill" : "moon.fill")
@@ -191,26 +182,27 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
-            .background(colorScheme == .dark ? Color.black : Color.white)
+            .background(Color.clear)
             .onAppear {
-                validateClientSelection()
+                initializeClientName()
             }
         }
-        .background(colorScheme == .dark ? Color.black : Color.white) // Ensure the entire background is the correct color
+        .background(Color.clear) // Ensure the entire background is transparent
+        .preferredColorScheme(colorScheme)
     }
 
     func toggleColorScheme() {
-        if let window = NSApp.windows.first {
-            window.appearance = NSAppearance(named: colorScheme == .dark ? .aqua : .darkAqua)
+        colorScheme = colorScheme == .dark ? .light : .dark
+    }
+
+    func initializeClientName() {
+        if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
+            clientName = savedClientName
+        } else if let firstClient = clients.first {
+            clientName = firstClient.name ?? ""
         }
     }
 
-    func validateClientSelection() {
-        if !clients.map({ $0.name ?? "" }).contains(clientName), let firstClient = clients.first {
-            _clientName.wrappedValue = firstClient.name ?? ""
-        }
-    }
-    
     func addNewClient() {
         let client = Client(context: viewContext)
         client.name = newClientName
