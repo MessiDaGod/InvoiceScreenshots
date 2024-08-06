@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  InvoiceScreenshots
-//
-//  Created by Joe Shakely on 9/12/23.
-//
-
 import SwiftUI
 import CoreData
 
@@ -45,7 +38,6 @@ class TimerViewModel: ObservableObject {
     }
 }
 
-
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var clientName: String = ""
@@ -58,8 +50,6 @@ struct ContentView: View {
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
     @State private var showDeleteConfirmation: Bool = false
-    // For toggling the sidebar
-    @State private var isSidebarVisible: Bool = true
     
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -78,30 +68,34 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationView {
-            // Sidebar
-            VStack {
-                List {
-                    Button(action: {
-                        // Placeholder action for Add New Client
-                    }) {
-                        Text("Add New Client")
-                    }
+        NavigationSplitView {
+            List {
+                Button(action: {
+                    // Placeholder action for Add New Client
+                }) {
+                    Text("Add New Client")
+                }
 
-                    // Only show the Delete All Clients button if there are clients
-                    if !clients.isEmpty {
-                        Button(action: {
-                            self.showDeleteConfirmation = true
-                        }) {
-                            Text("Delete All Clients")
-                        }
+                // Only show the Delete All Clients button if there are clients
+                if !clients.isEmpty {
+                    Button(action: {
+                        self.showDeleteConfirmation = true
+                    }) {
+                        Text("Delete All Clients")
                     }
                 }
-                Spacer()
             }
-            .frame(minWidth: 200, maxHeight: .infinity)
-            
-            // Main content
+            .frame(minWidth: 200)
+            .alert(isPresented: $showDeleteConfirmation) {
+                Alert(title: Text("Delete All Clients?"),
+                      message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
+                      primaryButton: .destructive(Text("Delete")) {
+                          deleteAllClients()
+                      },
+                      secondaryButton: .cancel()
+                )
+            }
+        } detail: {
             VStack(spacing: 20) {
                 // Add New Client Button
                 Button(action: {
@@ -115,27 +109,6 @@ struct ContentView: View {
                     .tint(.pink)
                     .padding()
                 }
-                
-                // Delete all Clients
-                Button(action: {
-                    self.showDeleteConfirmation = true
-                }) {
-                    HStack {
-                        Text("Delete All Clients")
-                        .foregroundColor(Color.white)
-                    }
-                    .padding()
-                }
-                .alert(isPresented: $showDeleteConfirmation) {
-                    Alert(title: Text("Delete All Clients?"),
-                          message: Text("Are you sure you want to delete all clients? This action cannot be undone."),
-                          primaryButton: .destructive(Text("Delete")) {
-                              deleteAllClients()
-                          },
-                          secondaryButton: .cancel()
-                    )
-                }
-
                 
                 // New Client Name TextField
                 if showNewClientField {
@@ -152,7 +125,6 @@ struct ContentView: View {
                     }
                     .padding()
                 }
-
                 
                 // Only show the Picker if there are clients
                 if !clients.isEmpty {
@@ -165,7 +137,6 @@ struct ContentView: View {
                     .padding()
                     .border(Color.gray)
                 }
-
 
                 TextField("Enter Invoice Number", text: $invoiceNumber)
                     .padding()
@@ -198,13 +169,11 @@ struct ContentView: View {
             }
             .padding()
         }
-        .padding()
         .onAppear {
             validateClientSelection()
-        }        
+        }
     }
 
-    
     func validateClientSelection() {
         if !clients.map({ $0.name ?? "" }).contains(clientName), let firstClient = clients.first {
             _clientName.wrappedValue = firstClient.name ?? ""
@@ -237,7 +206,6 @@ struct ContentView: View {
             }
         }
     }
-
 
     
     func deleteAllClients() {
