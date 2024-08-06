@@ -55,16 +55,23 @@ struct ContentView: View {
 
     var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
-    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)]) private var clients: FetchedResults<Client>
+    @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: false )]) private var clients: FetchedResults<Client>
         
     var body: some View {
         NavigationSplitView {
             List {
                 Button(action: {
-                    // Placeholder action for Add New Client
+                    self.showNewClientField.toggle()
                 }) {
                     Text("Add New Client")
                         .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
                 }
 
                 // Only show the Delete All Clients button if there are clients
@@ -73,7 +80,14 @@ struct ContentView: View {
                         self.showDeleteConfirmation = true
                     }) {
                         Text("Delete All Clients")
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                            .foregroundColor(.red)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                     }
                 }
             }
@@ -95,9 +109,23 @@ struct ContentView: View {
                             .fill(Color.clear)
                             .frame(width: 44, height: 44)
                             .shadow(radius: 10)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                         Image(systemName: colorScheme == .dark ? "sun.max.fill" : "moon.fill")
                             .font(.title)
                             .foregroundColor(colorScheme == .dark ? .yellow : .gray)
+                            .onHover { hovering in
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
                     }
                 }
                 .padding()
@@ -111,7 +139,21 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(.pink)
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
                     .padding()
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
                 }
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 
@@ -121,15 +163,47 @@ struct ContentView: View {
                         .padding()
                         .border(Color.gray)
 
-                    Button(action: {
-                        addNewClient()
-                        newClientName = "" // Clear the field after adding
-                        showNewClientField = false // Hide the TextField after saving
-                    }) {
-                        Text("Save Client")
+                    HStack {
+                        Button(action: {
+                            addNewClient()
+                            newClientName = "" // Clear the field after adding
+                            showNewClientField = false // Hide the TextField after saving
+                        }) {
+                            Text("Save Client")
+                        }
+                        .padding()
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        
+                        Button(action: {
+                            newClientName = ""
+                            showNewClientField = false
+                        }) {
+                            Text("Cancel")
+                                .foregroundColor(.red)
+                                .onHover { hovering in
+                                    if hovering {
+                                        NSCursor.pointingHand.push()
+                                    } else {
+                                        NSCursor.pop()
+                                    }
+                                }
+                        }
+                        .padding()
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
                     }
-                    .padding()
-                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
                 
                 // Only show the Picker if there are clients
@@ -149,6 +223,13 @@ struct ContentView: View {
                 TextField("Enter Invoice Number", text: $invoiceNumber)
                     .padding()
                     .border(Color.gray)
+                    .onHover { hovering in
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Text(viewModel.formattedTime)
