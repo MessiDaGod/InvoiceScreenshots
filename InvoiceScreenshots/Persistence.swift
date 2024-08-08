@@ -17,7 +17,7 @@ struct PersistenceController {
             let newItem = InvoiceScreenshots.Client(context: viewContext)
  
             let newClient = InvoiceScreenshots.Client(context: viewContext)
-            newClient.name = "Example Client"
+            newClient.name = "Default Client"
             // Assign an id for the newClient if needed.
         }
         do {

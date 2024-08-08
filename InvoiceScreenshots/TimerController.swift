@@ -9,11 +9,10 @@ import Foundation
 import AppKit
 
 class TimerController {
-
     var counter = 600
     var timer: Timer?
     var updateLabel: ((String) -> Void)?
-
+    
     func startTimer() {
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateCounter), userInfo: nil, repeats: true)
     }
@@ -21,6 +20,13 @@ class TimerController {
     func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+
+    func resetTimer() {
+        stopTimer()
+        counter = 600
+        let timeString = String(format: "%02d:%02d", counter / 60, counter % 60)
+        updateLabel?(timeString)
     }
 
     @objc private func updateCounter() {

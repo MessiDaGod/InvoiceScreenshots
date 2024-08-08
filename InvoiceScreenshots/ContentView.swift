@@ -35,19 +35,21 @@ class TimerViewModel: ObservableObject {
         isRunning = false
         timerController.stopTimer()
         ScreenshotTerminalExecutor.terminateCurrentProcess()
+        timerController.resetTimer() // Reset the timer to 10:00
     }
 }
+
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.colorScheme) private var environmentColorScheme
-    @State private var colorScheme: ColorScheme = .light // Default to light mode
+    @State private var colorScheme: ColorScheme = .light
     @State private var clientName: String = ""
     @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
-    @State private var remainingSeconds: Int = 600
     @State private var formattedTime: String = "10:00"
+    @State private var remainingSeconds: Int = 600
     @ObservedObject var viewModel = TimerViewModel()
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
@@ -91,7 +93,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .frame(minWidth: 200)
+            .frame(minWidth: 170)
             .background(Color.clear)
             .alert(isPresented: $showDeleteConfirmation) {
                 Alert(title: Text("Delete All Clients?"),
@@ -247,8 +249,18 @@ struct ContentView: View {
                 .padding()
                 .disabled(viewModel.isRunning)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
+                .onHover { hovering in
+                    if hovering {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
 
-                Button(action: viewModel.cancelProcess) {
+                Button(action: {
+                    viewModel.cancelProcess()
+                    formattedTime = viewModel.formattedTime // Reset the timer display
+                }) {
                     Text("Cancel")
                 }
                 .padding()
@@ -265,6 +277,7 @@ struct ContentView: View {
             .padding()
             .background(Color.clear)
             .onAppear {
+                loadColorScheme()
                 initializeClientName()
             }
         }
@@ -274,6 +287,13 @@ struct ContentView: View {
 
     func toggleColorScheme() {
         colorScheme = colorScheme == .dark ? .light : .dark
+        UserDefaults.standard.set(colorScheme == .dark ? "dark" : "light", forKey: "colorScheme")
+    }
+
+    func loadColorScheme() {
+        if let savedScheme = UserDefaults.standard.string(forKey: "colorScheme") {
+            colorScheme = savedScheme == "dark" ? .dark : .light
+        }
     }
 
     func initializeClientName() {
