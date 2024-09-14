@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B3958612C6554BE00455E05 /* TimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3958602C6554BE00455E05 /* TimerViewModel.swift */; };
 		0B4485872AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0B4485852AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld */; };
 		0B8DDD482AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */; };
 		0B8DDD4A2AB0C4EB00C2F2A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8DDD492AB0C4EB00C2F2A3 /* ContentView.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B3958602C6554BE00455E05 /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
 		0B4485862AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = InvoiceScreenshots.xcdatamodel; sourceTree = "<group>"; };
 		0B8DDD442AB0C4EB00C2F2A3 /* InvoiceScreenshots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InvoiceScreenshots.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScreenshotsApp.swift; sourceTree = "<group>"; };
@@ -60,13 +62,14 @@
 		0B8DDD462AB0C4EB00C2F2A3 /* InvoiceScreenshots */ = {
 			isa = PBXGroup;
 			children = (
-				0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */,
-				0B8DDD5B2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift */,
-				0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */,
 				0B8DDD492AB0C4EB00C2F2A3 /* ContentView.swift */,
+				0B8DDD472AB0C4EB00C2F2A3 /* InvoiceScreenshotsApp.swift */,
+				0B8DDD502AB0C4EE00C2F2A3 /* Persistence.swift */,
+				0B8DDD5B2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift */,
+				0B8DDD5D2AB0F23600C2F2A3 /* TimerController.swift */,
+				0B3958602C6554BE00455E05 /* TimerViewModel.swift */,
 				0B8DDD4B2AB0C4EE00C2F2A3 /* Assets.xcassets */,
 				0B4485852AB2BBEC008E905D /* InvoiceScreenshots.xcdatamodeld */,
-				0B8DDD502AB0C4EE00C2F2A3 /* Persistence.swift */,
 				0B8DDD552AB0C4EE00C2F2A3 /* InvoiceScreenshots.entitlements */,
 				0B8DDD4D2AB0C4EE00C2F2A3 /* Preview Content */,
 			);
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B3958612C6554BE00455E05 /* TimerViewModel.swift in Sources */,
 				0B8DDD512AB0C4EE00C2F2A3 /* Persistence.swift in Sources */,
 				0B8DDD4A2AB0C4EB00C2F2A3 /* ContentView.swift in Sources */,
 				0B8DDD5C2AB0CEF300C2F2A3 /* ScreenshotTerminalExecutor.swift in Sources */,

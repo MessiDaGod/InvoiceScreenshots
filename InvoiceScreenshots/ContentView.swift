@@ -1,64 +1,21 @@
 import SwiftUI
 import CoreData
 
-class TimerViewModel: ObservableObject {
-    var timerController = TimerController()
-    
-    @Published var formattedTime: String = "10:00"
-    @Published var isRunning: Bool = false
-    
-    init() {
-        timerController.updateLabel = { [weak self] time in
-            self?.formattedTime = time
-        }
-    }
-    
-    func executeScript(clientName: String, invoiceNumber: String, includeSound: Bool) {
-        isRunning = true
-        timerController.startTimer()
-        
-        ScreenshotTerminalExecutor.execute(clientName: clientName, invoiceNumber: invoiceNumber, includeSound: includeSound) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.timerController.stopTimer()
-                self?.isRunning = false
-                switch result {
-                case .success:
-                    print("Success!")
-                case .failure(let error):
-                    print("Error:", error)
-                }
-            }
-        }
-    }
-    
-    func cancelProcess() {
-        isRunning = false
-        timerController.stopTimer()
-        ScreenshotTerminalExecutor.terminateCurrentProcess()
-        timerController.resetTimer() // Reset the timer to 10:00
-    }
-}
-
-
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.colorScheme) private var environmentColorScheme
-    @State private var colorScheme: ColorScheme = .light
+    @State private var colorScheme: ColorScheme = .light // Default to light mode
     @State private var clientName: String = ""
     @State private var invoiceNumber: String = "Invoice7"
     @State private var isRunning: Bool = false
     @State private var includeScreenshotSound: Bool = true
-    @State private var formattedTime: String = "10:00"
-    @State private var remainingSeconds: Int = 600
     @ObservedObject var viewModel = TimerViewModel()
     @State private var newClientName: String = ""
     @State private var showNewClientField: Bool = false
     @State private var showDeleteConfirmation: Bool = false
 
-    var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
     @FetchRequest(entity: Client.entity(), sortDescriptors: [NSSortDescriptor(key: "id", ascending: false )]) private var clients: FetchedResults<Client>
-        
+
     var body: some View {
         NavigationSplitView {
             List {
@@ -67,13 +24,6 @@ struct ContentView: View {
                 }) {
                     Text("Add New Client")
                         .foregroundColor(colorScheme == .dark ? .white : .black)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
                 }
 
                 // Only show the Delete All Clients button if there are clients
@@ -83,17 +33,10 @@ struct ContentView: View {
                     }) {
                         Text("Delete All Clients")
                             .foregroundColor(.red)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
                     }
                 }
             }
-            .frame(minWidth: 170)
+            .frame(minWidth: 200)
             .background(Color.clear)
             .alert(isPresented: $showDeleteConfirmation) {
                 Alert(title: Text("Delete All Clients?"),
@@ -111,23 +54,9 @@ struct ContentView: View {
                             .fill(Color.clear)
                             .frame(width: 44, height: 44)
                             .shadow(radius: 10)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
                         Image(systemName: colorScheme == .dark ? "sun.max.fill" : "moon.fill")
                             .font(.title)
                             .foregroundColor(colorScheme == .dark ? .yellow : .gray)
-                            .onHover { hovering in
-                                if hovering {
-                                    NSCursor.pointingHand.push()
-                                } else {
-                                    NSCursor.pop()
-                                }
-                            }
                     }
                 }
                 .padding()
@@ -141,21 +70,7 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(.pink)
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
                     .padding()
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
                 }
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 
@@ -175,13 +90,6 @@ struct ContentView: View {
                         }
                         .padding()
                         .foregroundColor(colorScheme == .dark ? .white : .black)
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
                         
                         Button(action: {
                             newClientName = ""
@@ -189,27 +97,13 @@ struct ContentView: View {
                         }) {
                             Text("Cancel")
                                 .foregroundColor(.red)
-                                .onHover { hovering in
-                                    if hovering {
-                                        NSCursor.pointingHand.push()
-                                    } else {
-                                        NSCursor.pop()
-                                    }
-                                }
                         }
                         .padding()
-                        .onHover { hovering in
-                            if hovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
                     }
                 }
-                
+
                 // Only show the Picker if there are clients
-                if !clients.isEmpty {
+                if !clients.isEmpty && !clientName.isEmpty {
                     Picker("Select Client", selection: $clientName) {
                         ForEach(clients, id: \.self) { client in
                             Text(client.name ?? "")
@@ -220,18 +114,15 @@ struct ContentView: View {
                     .padding()
                     .border(Color.gray)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
+                    .onChange(of: clientName) { newValue in
+                        UserDefaults.standard.set(newValue, forKey: "lastClientName")
+                    }
                 }
+
 
                 TextField("Enter Invoice Number", text: $invoiceNumber)
                     .padding()
                     .border(Color.gray)
-                    .onHover { hovering in
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
                     .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Text(viewModel.formattedTime)
@@ -249,17 +140,9 @@ struct ContentView: View {
                 .padding()
                 .disabled(viewModel.isRunning)
                 .foregroundColor(colorScheme == .dark ? .white : .black)
-                .onHover { hovering in
-                    if hovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
 
                 Button(action: {
                     viewModel.cancelProcess()
-                    formattedTime = viewModel.formattedTime // Reset the timer display
                 }) {
                     Text("Cancel")
                 }
@@ -284,6 +167,17 @@ struct ContentView: View {
         .background(Color.clear) // Ensure the entire background is transparent
         .preferredColorScheme(colorScheme)
     }
+    
+    func initializeClientName() {
+        if let savedClientName = UserDefaults.standard.string(forKey: "lastClientName") {
+            clientName = savedClientName
+        } else if let firstClient = clients.first {
+            clientName = firstClient.name ?? ""
+        } else {
+            clientName = "" // Ensure it initializes to an empty string if no clients are present
+        }
+    }
+
 
     func toggleColorScheme() {
         colorScheme = colorScheme == .dark ? .light : .dark
@@ -293,14 +187,6 @@ struct ContentView: View {
     func loadColorScheme() {
         if let savedScheme = UserDefaults.standard.string(forKey: "colorScheme") {
             colorScheme = savedScheme == "dark" ? .dark : .light
-        }
-    }
-
-    func initializeClientName() {
-        if let savedClientName = UserDefaults.standard.string(forKey: "clientName") {
-            clientName = savedClientName
-        } else if let firstClient = clients.first {
-            clientName = firstClient.name ?? ""
         }
     }
 
@@ -331,7 +217,6 @@ struct ContentView: View {
         }
     }
 
-    
     func deleteAllClients() {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Client.fetchRequest()
         
